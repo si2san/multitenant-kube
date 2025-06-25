@@ -16,3 +16,10 @@ spec:
                 name: multitenant-auth-service
                 port:
                   number: 8000
+          - path: /menu(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: multitenant-menu-service
+                port:
+                  number: 8001

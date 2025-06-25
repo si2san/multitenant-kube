@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multitenant-menu
+  labels:
+    app: multitenant-menu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multitenant-menu
+  template:
+    metadata:
+      labels:
+        app: multitenant-menu
+    spec:
+      initContainers:
+        - name: copy-menu-php-code
+          image: php-mt-menu-k8:latest
+          imagePullPolicy: Never
+          command: ["sh", "-c", "cp -r /var/www/. /app"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+      containers:
+        - name: multitenant-menu-php
+          image: php-mt-menu-k8:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: app
+              mountPath: /var/www
+        - name: multitenant-menu-nginx
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: multitenant-menu-nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: app
+              mountPath: /var/www
+              readOnly: true
+      volumes:
+        - name: app
+          emptyDir: {}
+        - name: multitenant-menu-nginx-conf
+          configMap:
+            name: multitenant-menu-nginx-config-map
