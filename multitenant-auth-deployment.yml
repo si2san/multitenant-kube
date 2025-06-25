@@ -21,7 +21,7 @@ spec:
           command: ["sh", "-c", "cp -r /var/www/. /app"]
           volumeMounts:
             - name: app
-              mountPath: /app  
+              mountPath: /app
       containers:
         - name: multitenant-auth-php
           image: php-mt-auth-k8:latest
