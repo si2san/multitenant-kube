@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multitenant-auth
+  labels:
+    app: multitenant-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multitenant-auth
+  template:
+    metadata:
+      labels:
+        app: multitenant-auth
+    spec:
+      initContainers:
+        - name: copy-auth-php-code
+          image: php-mt-auth-k8:latest
+          imagePullPolicy: Never
+          command: ["sh", "-c", "cp -r /var/www/. /app"]
+          volumeMounts:
+            - name: app
+              mountPath: /app  
+      containers:
+        - name: multitenant-auth-php
+          image: php-mt-auth-k8:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: app
+              mountPath: /var/www
+        - name: multitenant-auth-nginx
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: multitenant-auth-nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: app
+              mountPath: /var/www
+              readOnly: true
+      volumes:
+        - name: app
+          emptyDir: {}
+        - name: multitenant-auth-nginx-conf
+          configMap:
+            name: multitenant-auth-nginx-config-map
