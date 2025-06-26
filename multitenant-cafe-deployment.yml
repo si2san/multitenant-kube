@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multitenant-cafe
+  labels:
+    app: multitenant-cafe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multitenant-cafe
+  template:
+    metadata:
+      labels:
+        app: multitenant-cafe
+    spec:
+      initContainers:
+        - name: copy-cafe-php-code
+          image: php-mt-cafe-k8:latest
+          imagePullPolicy: Never
+          command: ["sh", "-c", "cp -r /var/www/. /app"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+      containers:
+        - name: multitenant-cafe-php
+          image: php-mt-cafe-k8:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: app
+              mountPath: /var/www
+        - name: multitenant-cafe-nginx
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: multitenant-cafe-nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: app
+              mountPath: /var/www
+              readOnly: true
+      volumes:
+        - name: app
+          emptyDir: {}
+        - name: multitenant-cafe-nginx-conf
+          configMap:
+            name: multitenant-cafe-nginx-config-map

@@ -23,3 +23,10 @@ spec:
                 name: multitenant-menu-service
                 port:
                   number: 8001
+          - path: /cafe(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: multitenant-cafe-service
+                port:
+                  number: 8002
