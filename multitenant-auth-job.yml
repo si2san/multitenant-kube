@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: multitenant-auth-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: multitenant-auth-job
+          image: php-mt-auth-k8:latest
+          command: ["php", "artisan", "migrate:fresh", "--seed"]
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: multitenant-auth-deployment-config-map
+      restartPolicy: Never
