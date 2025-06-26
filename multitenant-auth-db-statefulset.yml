@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: multitenant-auth-db
+spec:
+  serviceName: multitenant-auth-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multitenant-auth-db
+  template:
+    metadata:
+      labels:
+        app: multitenant-auth-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: multitenant-auth-db-secret
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: config
+              mountPath: /etc/mysql/my.cnf
+              subPath: my.cnf
+          env:
+            - name: TZ
+              value: "Asia/Tokyo"
+      volumes:
+        - name: config
+          configMap:
+            name: multitenant-auth-db-config-map
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
