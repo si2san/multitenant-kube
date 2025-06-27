@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: multitenant-menu-cache
+spec:
+  serviceName: multitenant-menu-cache
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multitenant-menu-cache
+  template:
+    metadata:
+      labels:
+        app: multitenant-menu-cache
+    spec:
+      containers:
+        - name: multitenant-menu-cache
+          image: redis
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+            - name: TZ
+              value: "Asia/Tokyo"
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
