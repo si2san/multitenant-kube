@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: multitenant-menu-db
+spec:
+  serviceName: multitenant-menu-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multitenant-menu-db
+  template:
+    metadata:
+      labels:
+        app: multitenant-menu-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: multitenant-menu-db-secret
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: config
+              mountPath: /etc/mysql/my.cnf
+              subPath: my.cnf
+          env:
+            - name: TZ
+              value: "Asia/Tokyo"
+      volumes:
+        - name: config
+          configMap:
+            name: multitenant-menu-db-config-map
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
