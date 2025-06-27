@@ -31,9 +31,37 @@ spec:
           volumeMounts:
             - name: app
               mountPath: /var/www
-          envFrom:
-            - configMapRef:
-                name: multitenant-auth-deployment-config-map
+          env:
+            - name: DB_CONNECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: multitenant-auth-deployment-config-map
+                  key: DB_CONNECTION
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: multitenant-auth-deployment-config-map
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: multitenant-auth-deployment-config-map
+                  key: DB_PORT
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: multitenant-auth-deployment-config-map
+                  key: DB_DATABASE
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: multitenant-auth-db-secret
+                  key: MYSQL_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: multitenant-auth-db-secret
+                  key: MYSQL_PASSWORD
           resources:
             requests:
               cpu: "100m"
