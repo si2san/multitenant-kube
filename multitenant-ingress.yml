@@ -13,7 +13,7 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: multitenant-auth-service
+                name: auth-proxy-service
                 port:
                   number: 8000
           - path: /menu(/|$)(.*)

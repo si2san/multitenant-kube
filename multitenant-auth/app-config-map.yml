@@ -1,10 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: multitenant-auth-deployment-config-map
+  namespace: multitenant-auth
+  name: app-config-map
 data:
   DB_CONNECTION: mysql
-  DB_HOST: multitenant-auth-db-service.default.svc.cluster.local
+  DB_HOST: db-service.multitenant-auth.svc.cluster.local
   DB_PORT: "3306"
   DB_DATABASE: multitenant-auth
   DB_USERNAME: multitenant-auth

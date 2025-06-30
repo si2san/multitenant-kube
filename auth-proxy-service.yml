@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-proxy-service
+spec:
+  type: ExternalName
+  externalName: app-service.multitenant-auth.svc.cluster.local
+  ports:
+    - port: 8000
+      targetPort: 8000

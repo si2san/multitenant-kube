@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: multitenant-auth
+  namespace: multitenant-auth
+  name: app
   labels:
-    app: multitenant-auth
+    app: app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: multitenant-auth
+      app: app
   template:
     metadata:
       labels:
-        app: multitenant-auth
+        app: app
     spec:
       initContainers:
-        - name: copy-auth-php-code
+        - name: copy-app-code
           image: php-mt-auth-k8:latest
           imagePullPolicy: Never
           command: ["sh", "-c", "cp -r /var/www/. /app"]
@@ -23,7 +24,7 @@ spec:
             - name: app
               mountPath: /app
       containers:
-        - name: multitenant-auth-php
+        - name: php
           image: php-mt-auth-k8:latest
           imagePullPolicy: Never
           ports:
@@ -33,19 +34,19 @@ spec:
               mountPath: /var/www
           envFrom:
             - configMapRef:
-                name: multitenant-auth-deployment-config-map
+                name: app-config-map
           resources:
             requests:
               cpu: "100m"
             limits:
               cpu: "500m"
-        - name: multitenant-auth-nginx
+        - name: nginx
           image: nginx:alpine
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: multitenant-auth-nginx-conf
+            - name: nginx-conf
               mountPath: /etc/nginx/conf.d
               readOnly: true
             - name: app
@@ -56,9 +57,21 @@ spec:
               cpu: "100m"
             limits:
               cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 15
       volumes:
         - name: app
           emptyDir: {}
-        - name: multitenant-auth-nginx-conf
+        - name: nginx-conf
           configMap:
-            name: multitenant-auth-nginx-config-map
+            name: nginx-config-map
