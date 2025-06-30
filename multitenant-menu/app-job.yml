@@ -1,16 +1,17 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: multitenant-menu-job
+  namespace: multitenant-menu
+  name: app-job
 spec:
   template:
     spec:
       containers:
-        - name: multitenant-menu-job
+        - name: app-job
           image: php-mt-menu-k8:latest
           command: ["php", "artisan", "migrate:fresh", "--seed"]
           imagePullPolicy: Never
           envFrom:
             - configMapRef:
-                name: multitenant-menu-deployment-config-map
+                name: app-config-map
       restartPolicy: Never

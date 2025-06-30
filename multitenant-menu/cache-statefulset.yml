@@ -1,20 +1,21 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: multitenant-menu-cache
+  namespace: multitenant-menu
+  name: cache
 spec:
-  serviceName: multitenant-menu-cache
+  serviceName: cache
   replicas: 1
   selector:
     matchLabels:
-      app: multitenant-menu-cache
+      app: cache
   template:
     metadata:
       labels:
-        app: multitenant-menu-cache
+        app: cache
     spec:
       containers:
-        - name: multitenant-menu-cache
+        - name: cache
           image: redis
           ports:
             - containerPort: 6379

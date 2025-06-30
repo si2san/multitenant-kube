@@ -1,17 +1,18 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: multitenant-menu-db
+  namespace: multitenant-menu
+  name: db
 spec:
-  serviceName: multitenant-menu-db
+  serviceName: db
   replicas: 1
   selector:
     matchLabels:
-      app: multitenant-menu-db
+      app: db
   template:
     metadata:
       labels:
-        app: multitenant-menu-db
+        app: db
     spec:
       containers:
         - name: mysql
@@ -20,7 +21,7 @@ spec:
             - containerPort: 3306
           envFrom:
             - secretRef:
-                name: multitenant-menu-db-secret
+                name: db-secret
           volumeMounts:
             - name: data
               mountPath: /var/lib/mysql
@@ -33,7 +34,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: multitenant-menu-db-config-map
+            name: db-config-map
   volumeClaimTemplates:
     - metadata:
         name: data

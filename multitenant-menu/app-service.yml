@@ -1,14 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: multitenant-menu
+  name: app-service
   labels:
-    app: multitenant-menu-service
-  name: multitenant-menu-service
+    app: app-service
 spec:
   ports:
-    - port: 8001
+    - port: 8000
       protocol: TCP
       targetPort: 80
   selector:
-    app: multitenant-menu
+    app: app
   type: ClusterIP

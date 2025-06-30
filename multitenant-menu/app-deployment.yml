@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: multitenant-menu
+  namespace: multitenant-menu
+  name: app
   labels:
-    app: multitenant-menu
+    app: app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: multitenant-menu
+      app: app
   template:
     metadata:
       labels:
-        app: multitenant-menu
+        app: app
     spec:
       initContainers:
-        - name: copy-menu-php-code
+        - name: copy-app-code
           image: php-mt-menu-k8:latest
           imagePullPolicy: Never
           command: ["sh", "-c", "cp -r /var/www/. /app"]
@@ -23,7 +24,7 @@ spec:
             - name: app
               mountPath: /app
       containers:
-        - name: multitenant-menu-php
+        - name: php
           image: php-mt-menu-k8:latest
           imagePullPolicy: Never
           ports:
@@ -33,22 +34,44 @@ spec:
               mountPath: /var/www
           envFrom:
             - configMapRef:
-                name: multitenant-menu-deployment-config-map
-        - name: multitenant-menu-nginx
+                name: app-config-map
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
+        - name: nginx
           image: nginx:alpine
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: multitenant-menu-nginx-conf
+            - name: nginx-conf
               mountPath: /etc/nginx/conf.d
               readOnly: true
             - name: app
               mountPath: /var/www
               readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 15
       volumes:
         - name: app
           emptyDir: {}
-        - name: multitenant-menu-nginx-conf
+        - name: nginx-conf
           configMap:
-            name: multitenant-menu-nginx-config-map
+            name: nginx-config-map
