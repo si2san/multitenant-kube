@@ -8,9 +8,9 @@ spec:
     spec:
       containers:
         - name: app-job
-          image: php-mt-ec-k8:latest
+          image: localhost:32000/php-mt-ec-k8:latest
           command: ["php", "artisan", "migrate:fresh", "--seed"]
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
                 name: app-config-map

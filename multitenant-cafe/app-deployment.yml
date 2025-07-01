@@ -17,16 +17,16 @@ spec:
     spec:
       initContainers:
         - name: copy-app-code
-          image: php-mt-cafe-k8:latest
-          imagePullPolicy: Never
+          image: localhost:32000/php-mt-cafe-k8:latest
+          imagePullPolicy: IfNotPresent
           command: ["sh", "-c", "cp -r /var/www/. /app"]
           volumeMounts:
             - name: app
               mountPath: /app
       containers:
         - name: php
-          image: php-mt-cafe-k8:latest
-          imagePullPolicy: Never
+          image: localhost:32000/php-mt-cafe-k8:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9000
           volumeMounts:
