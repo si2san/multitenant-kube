@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: multitenant-cafe
+  namespace: multitenant-cafe
+  name: app
   labels:
-    app: multitenant-cafe
+    app: app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: multitenant-cafe
+      app: app
   template:
     metadata:
       labels:
-        app: multitenant-cafe
+        app: app
     spec:
       initContainers:
-        - name: copy-cafe-php-code
+        - name: copy-app-code
           image: php-mt-cafe-k8:latest
           imagePullPolicy: Never
           command: ["sh", "-c", "cp -r /var/www/. /app"]
@@ -23,7 +24,7 @@ spec:
             - name: app
               mountPath: /app
       containers:
-        - name: multitenant-cafe-php
+        - name: php
           image: php-mt-cafe-k8:latest
           imagePullPolicy: Never
           ports:
@@ -31,21 +32,46 @@ spec:
           volumeMounts:
             - name: app
               mountPath: /var/www
-        - name: multitenant-cafe-nginx
+          envFrom:
+            - configMapRef:
+                name: app-config-map
+          resources:
+            requests:
+              cpu: "256m"
+            limits:
+              cpu: "1000m"
+        - name: nginx
           image: nginx:alpine
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: multitenant-cafe-nginx-conf
+            - name: nginx-conf
               mountPath: /etc/nginx/conf.d
               readOnly: true
             - name: app
               mountPath: /var/www
               readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 15
       volumes:
         - name: app
           emptyDir: {}
-        - name: multitenant-cafe-nginx-conf
+        - name: nginx-conf
           configMap:
-            name: multitenant-cafe-nginx-config-map
+            name: nginx-config-map

@@ -37,9 +37,9 @@ spec:
                 name: app-config-map
           resources:
             requests:
-              cpu: "100m"
+              cpu: "256m"
             limits:
-              cpu: "500m"
+              cpu: "1000m"
         - name: nginx
           image: nginx:alpine
           imagePullPolicy: IfNotPresent

@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: multitenant-cafe
+  name: app-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: app-job
+          image: php-mt-cafe-k8:latest
+          command: ["php", "artisan", "migrate:fresh", "--seed"]
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: app-config-map
+      restartPolicy: Never
