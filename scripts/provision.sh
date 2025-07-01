@@ -38,7 +38,7 @@ FILES=(
 for file in "${FILES[@]}"; do
   if [[ -f "$file" ]]; then
     echo "Applying: $file"
-    kubectl apply -f "$file"
+    microk8s kubectl apply -f "$file"
   fi
 done
 
