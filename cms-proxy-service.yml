@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cms-proxy-service
+spec:
+  type: ExternalName
+  externalName: app-service.multitenant-cms.svc.cluster.local
+  ports:
+    - port: 8000
+      targetPort: 8000

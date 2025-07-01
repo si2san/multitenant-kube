@@ -30,3 +30,10 @@ spec:
                 name: cafe-proxy-service
                 port:
                   number: 8000
+          - path: /cms(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: cms-proxy-service
+                port:
+                  number: 8000
