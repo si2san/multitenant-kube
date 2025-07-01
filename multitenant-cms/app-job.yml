@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: multitenant-cms
+  name: app-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: app-job
+          image: php-mt-cms-k8:latest
+          command: ["php", "artisan", "migrate:fresh", "--seed"]
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: app-config-map
+      restartPolicy: Never

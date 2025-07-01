@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: multitenant-cms
+  name: app
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      initContainers:
+        - name: copy-app-code
+          image: php-mt-cms-k8:latest
+          imagePullPolicy: Never
+          command: ["sh", "-c", "cp -r /var/www/. /app"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+      containers:
+        - name: php
+          image: php-mt-cms-k8:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: app
+              mountPath: /var/www
+          envFrom:
+            - configMapRef:
+                name: app-config-map
+          resources:
+            requests:
+              cpu: "256m"
+            limits:
+              cpu: "1000m"
+        - name: nginx
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: app
+              mountPath: /var/www
+              readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /up
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 15
+      volumes:
+        - name: app
+          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: nginx-config-map
