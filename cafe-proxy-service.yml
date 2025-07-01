@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cafe-proxy-service
+spec:
+  type: ExternalName
+  externalName: app-service.multitenant-cafe.svc.cluster.local
+  ports:
+    - port: 8000
+      targetPort: 8000
