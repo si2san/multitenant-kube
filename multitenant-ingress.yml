@@ -37,3 +37,10 @@ spec:
                 name: cms-proxy-service
                 port:
                   number: 8000
+          - path: /cms(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ec-proxy-service
+                port:
+                  number: 8000
