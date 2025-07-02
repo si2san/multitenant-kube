@@ -37,7 +37,7 @@ spec:
                 name: app-config-map
           resources:
             requests:
-              cpu: "256m"
+              cpu: "100m"
             limits:
               cpu: "1000m"
         - name: nginx
